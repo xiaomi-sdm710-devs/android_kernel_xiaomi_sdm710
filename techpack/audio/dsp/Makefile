@@ -18,12 +18,4 @@ obj-$(CONFIG_SND_SOC_MSM_QDSP6V2_INTF) += elliptic/ apr_elliptic.o
 ifdef CONFIG_MSM_CSPL
 obj-$(CONFIG_SND_SOC_MSM_QDSP6V2_INTF) += msm-cirrus-playback.o
 endif
-
-ifeq ($(CONFIG_MACH_XIAOMI_PYXIS), y)
-AUDIO_FEATURE_ENABLED_SPKR_PROTECTION := true
-endif
-
-ifeq ($(CONFIG_MACH_XIAOMI_VELA), y)
-AUDIO_FEATURE_ENABLED_SPKR_PROTECTION := true
-endif
 endif
