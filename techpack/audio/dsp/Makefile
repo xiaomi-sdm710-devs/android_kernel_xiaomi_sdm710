@@ -26,8 +26,4 @@ endif
 ifeq ($(CONFIG_MACH_XIAOMI_VELA), y)
 AUDIO_FEATURE_ENABLED_SPKR_PROTECTION := true
 endif
-
-ifeq ($(strip $(AUDIO_FEATURE_ENABLED_SPKR_PROTECTION)),true)
-ccflags-y += -DCONFIG_SND_SOC_TAS2562_FOR_PYXIS
-endif
 endif

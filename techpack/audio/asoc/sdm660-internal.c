@@ -2370,7 +2370,7 @@ static struct snd_soc_dai_link msm_int_dai[] = {
 		.ignore_pmdown_time = 1,
 		.id = MSM_FRONTEND_DAI_MULTIMEDIA6,
 	},
-#ifdef CONFIG_SND_SOC_TAS2562_FOR_PYXIS
+#if IS_ENABLED(CONFIG_MACH_XIAOMI_PYXIS_OR_VELA)
 	{/* hw:x,40 */
 		.name = "Primary MI2S_TX Hostless",
 		.stream_name = "Primary MI2S_TX Hostless",

@@ -70,8 +70,4 @@ ifeq ($(CONFIG_MACH_XIAOMI_VELA), y)
 ccflags-y += -DAUDIO_FEATURE_SUPPORT_24BIT
 endif
 
-ifeq ($(strip $(AUDIO_FEATURE_ENABLED_SPKR_PROTECTION)),true)
-ccflags-y += -DCONFIG_SND_SOC_TAS2562_FOR_PYXIS
-endif
-
 obj-y += codecs/
