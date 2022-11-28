@@ -21,7 +21,6 @@
 #include "codecs/sdm660_cdc/msm-analog-cdc.h"
 #include "codecs/msm_sdw/msm_sdw.h"
 #include <linux/pm_qos.h>
-#include <soc/qcom/socinfo.h>
 
 #define __CHIPSET__ "SDM660 "
 #define MSM_DAILINK_NAME(name) (__CHIPSET__#name)
@@ -2767,8 +2766,19 @@ static struct snd_soc_dai_link msm_mi2s_be_dai_links[] = {
 		.stream_name = "Primary MI2S Playback",
 		.cpu_dai_name = "msm-dai-q6-mi2s.0",
 		.platform_name = "msm-pcm-routing",
+#if IS_ENABLED(CONFIG_MACH_XIAOMI_SIRIUS)
+		.codec_name = "tas2557.2-004c",
+		.codec_dai_name = "tas2557 ASI1",
+#elif IS_ENABLED(CONFIG_MACH_XIAOMI_GRUS)
+		.codec_name = "cs35l41.2-0040",
+		.codec_dai_name = "cs35l41-pcm",
+#elif IS_ENABLED(CONFIG_MACH_XIAOMI_PYXIS_OR_VELA)
+		.codec_name = "tas2562.2-004c",
+		.codec_dai_name = "tas2562 ASI1",
+#else
 		.codec_name = "msm-stub-codec.1",
 		.codec_dai_name = "msm-stub-rx",
+#endif
 		.no_pcm = 1,
 		.dpcm_playback = 1,
 		.id = MSM_BACKEND_DAI_PRI_MI2S_RX,
@@ -2782,8 +2792,13 @@ static struct snd_soc_dai_link msm_mi2s_be_dai_links[] = {
 		.stream_name = "Primary MI2S Capture",
 		.cpu_dai_name = "msm-dai-q6-mi2s.0",
 		.platform_name = "msm-pcm-routing",
+#if IS_ENABLED(CONFIG_MACH_XIAOMI_PYXIS_OR_VELA)
+		.codec_name = "tas2562.2-004c",
+		.codec_dai_name = "tas2562 ASI1",
+#else
 		.codec_name = "msm-stub-codec.1",
 		.codec_dai_name = "msm-stub-tx",
+#endif
 		.no_pcm = 1,
 		.dpcm_capture = 1,
 		.id = MSM_BACKEND_DAI_PRI_MI2S_TX,
@@ -3221,7 +3236,6 @@ static struct snd_soc_card *msm_int_populate_sndcard_dailinks(
 	struct snd_soc_card *card = &sdm660_card;
 	struct snd_soc_dai_link *dailink;
 	int len1;
-	int hw_platform;
 
 	card->name = dev_name(dev);
 	len1 = ARRAY_SIZE(msm_int_dai);
@@ -3243,30 +3257,6 @@ static struct snd_soc_card *msm_int_populate_sndcard_dailinks(
 
 	if (of_property_read_bool(dev->of_node,
 				  "qcom,mi2s-audio-intf")) {
-		hw_platform = get_hw_version_platform();
-		if (HARDWARE_PLATFORM_SIRIUS == hw_platform) {
-			dev_info(dev, "%s: hardware is HARDWARE_PLATFORM_SIRIUS.\n", __func__);
-			msm_mi2s_be_dai_links[0].codec_name = "tas2557.2-004c";
-			msm_mi2s_be_dai_links[0].codec_dai_name = "tas2557 ASI1";
-		} else if (HARDWARE_PLATFORM_GRUS == hw_platform) {
-			dev_info(dev, "%s: hardware is HARDWARE_PLATFORM_GRUS.\n", __func__);
-#ifdef CONFIG_SND_SOC_CS35L41_FOR_GRUS
-			msm_mi2s_be_dai_links[0].codec_name = CS35L41_CODEC_NAME;
-			msm_mi2s_be_dai_links[0].codec_dai_name = "cs35l41-pcm";
-#endif
-		} else if (HARDWARE_PLATFORM_PYXIS == hw_platform ||
-				HARDWARE_PLATFORM_VELA == hw_platform) {
-			dev_info(dev, "%s: hardware is HARDWARE_PLATFORM_PYXIS or BAMBOO or COSMOS.\n", __func__);
-			msm_mi2s_be_dai_links[0].codec_name = "tas2562.2-004c";
-			msm_mi2s_be_dai_links[0].codec_dai_name = "tas2562 ASI1";
-			msm_mi2s_be_dai_links[1].codec_name = "tas2562.2-004c";
-			msm_mi2s_be_dai_links[1].codec_dai_name = "tas2562 ASI1";
-		} else {
-			dev_info(dev, "%s: hardware is unknown, %d.\n", __func__, hw_platform);
-			msm_mi2s_be_dai_links[0].codec_name = "tas2557.2-004c";
-			msm_mi2s_be_dai_links[0].codec_dai_name = "tas2557 ASI1";
-		}
-
 		memcpy(dailink + len1,
 		       msm_mi2s_be_dai_links,
 		       sizeof(msm_mi2s_be_dai_links));
