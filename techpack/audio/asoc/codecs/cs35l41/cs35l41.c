@@ -1490,6 +1490,11 @@ static int cs35l41_codec_probe(struct snd_soc_codec *codec)
 	snd_soc_dapm_ignore_suspend(dapm, "TEMP");
 	snd_soc_dapm_ignore_suspend(dapm, "DSP1 Preloader");
 	snd_soc_dapm_ignore_suspend(dapm, "DSP1 Preload");
+	snd_soc_dapm_ignore_suspend(dapm, "DSP1");
+	snd_soc_dapm_ignore_suspend(dapm, "ASPRX1");
+	snd_soc_dapm_ignore_suspend(dapm, "ASPRX2");
+	snd_soc_dapm_ignore_suspend(dapm, "ASPTX1");
+	snd_soc_dapm_ignore_suspend(dapm, "ASPTX2");
 
 	return 0;
 }
