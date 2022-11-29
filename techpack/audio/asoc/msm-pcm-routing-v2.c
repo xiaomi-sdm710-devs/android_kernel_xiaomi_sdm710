@@ -47,9 +47,7 @@
 #include "msm-qti-pp-config.h"
 #include "msm-dolby-dap-config.h"
 #include "msm-ds2-dap-config.h"
-#if IS_ENABLED(CONFIG_MACH_XIAOMI_PYXIS_OR_VELA)
-#include "dsp/smart_amp.h"
-#endif
+
 #ifndef CONFIG_DOLBY_DAP
 #undef DOLBY_ADM_COPP_TOPOLOGY_ID
 #define DOLBY_ADM_COPP_TOPOLOGY_ID 0xFFFFFFFE
@@ -19606,9 +19604,7 @@ static int msm_routing_probe(struct snd_soc_platform *platform)
 				ARRAY_SIZE(stereo_channel_reverse_control));
 
 	elliptic_add_platform_controls(platform);
-#if IS_ENABLED(CONFIG_MACH_XIAOMI_PYXIS_OR_VELA)
-	msm_smartamp_add_controls(platform);
-#endif
+
 	return 0;
 }
 

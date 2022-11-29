@@ -625,4 +625,6 @@ struct tas2562_priv {
 #endif
 };
 
+void tas2562_smartamp_add_controls(struct tas2562_priv *tas_priv);
+
 #endif /* __TAS2562_ */

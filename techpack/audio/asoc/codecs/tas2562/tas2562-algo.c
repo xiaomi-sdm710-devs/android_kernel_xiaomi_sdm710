@@ -1,5 +1,6 @@
 #include <dsp/smart_amp.h>
 #include <dsp/q6afe-v2.h>
+#include "tas2562.h"
 
 /*Master Control to Bypass the Smartamp TI CAPIv2 module*/
 static int smartamp_bypass = TAS_FALSE;
@@ -600,7 +601,7 @@ static int tas2562_get_smartamp_status(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
-static const struct snd_kcontrol_new msm_smartamp_tas2562_mixer_controls[] = {
+static const struct snd_kcontrol_new tas2562_smartamp_mixer_controls[] = {
 	SOC_SINGLE_EXT("TAS2562_SET_SPKID_LEFT", SND_SOC_NOPM, 0, 0x7fffffff, 0,
 	    tas2562_get_spkid_left, tas2562_set_spkid_left),
 	SOC_ENUM_EXT("TAS2562_ALGO_PROFILE", profile_index_enum[0],
@@ -627,12 +628,10 @@ static const struct snd_kcontrol_new msm_smartamp_tas2562_mixer_controls[] = {
 		tas2562_get_smartamp_status, NULL),
 };
 
-void msm_smartamp_add_controls(struct snd_soc_platform *platform)
+void tas2562_smartamp_add_controls(struct tas2562_priv *tas_priv)
 {
 	mutex_init(&routing_lock);
-	snd_soc_add_platform_controls(
-			platform, msm_smartamp_tas2562_mixer_controls,
-			ARRAY_SIZE(msm_smartamp_tas2562_mixer_controls));
+	snd_soc_add_codec_controls(tas_priv->codec,
+				   tas2562_smartamp_mixer_controls,
+				   ARRAY_SIZE(tas2562_smartamp_mixer_controls));
 }
-
-

@@ -856,6 +856,9 @@ static int tas2562_codec_probe(struct snd_soc_codec *codec)
 	tas2562_load_init(tas_priv);
 	tas2562_iv_enable(tas_priv, 1);
 	tas_priv->codec = codec;
+
+	tas2562_smartamp_add_controls(tas_priv);
+
 	dev_err(tas_priv->dev, "%s\n", __func__);
 
 	return 0;
