@@ -601,22 +601,7 @@ struct tas2562_priv {
 	int pcm_format;
 	bool muted;
 	bool i2c_suspend;
-	int (*read)(struct tas2562_priv *tas_priv, unsigned int reg,
-		    unsigned int *pvalue);
-	int (*write)(struct tas2562_priv *tas_priv, unsigned int reg,
-		     unsigned int value);
-	int (*bulk_read)(struct tas2562_priv *tas_priv, unsigned int reg,
-			 unsigned char *buf, unsigned int len);
-	int (*bulk_write)(struct tas2562_priv *tas_priv, unsigned int reg,
-			  unsigned char *buf, unsigned int len);
-	int (*update_bits)(struct tas2562_priv *tas_priv, unsigned int reg,
-			   unsigned int mask, unsigned int value);
-	void (*hw_reset)(struct tas2562_priv *tas_priv);
-	void (*clearIRQ)(struct tas2562_priv *tas_priv);
-	void (*enable_irq)(struct tas2562_priv *tas_priv, bool enable);
 	/* device is working, but system is suspended */
-	int (*runtime_suspend)(struct tas2562_priv *tas_priv);
-	int (*runtime_resume)(struct tas2562_priv *tas_priv);
 	bool runtime_suspended;
 
 	unsigned int err_code;
@@ -624,6 +609,23 @@ struct tas2562_priv {
 	struct mutex codec_lock;
 #endif
 };
+
+int tas2562_read(struct tas2562_priv *tas_priv, unsigned int reg,
+		 unsigned int *pvalue);
+int tas2562_write(struct tas2562_priv *tas_priv, unsigned int reg,
+		  unsigned int value);
+int tas2562_bulk_write(struct tas2562_priv *tas_priv, unsigned int reg,
+		       const unsigned char *buf, unsigned int len);
+int tas2562_bulk_read(struct tas2562_priv *tas_priv, unsigned int reg,
+		      unsigned char *buf, unsigned int len);
+int tas2562_update_bits(struct tas2562_priv *tas_priv, unsigned int reg,
+			unsigned int mask, unsigned int value);
+
+void tas2562_hw_reset(struct tas2562_priv *tas_priv);
+void tas2562_enable_irq(struct tas2562_priv *tas_priv, bool enable);
+
+int tas2562_runtime_suspend(struct tas2562_priv *tas_priv);
+int tas2562_runtime_resume(struct tas2562_priv *tas_priv);
 
 void tas2562_smartamp_add_controls(struct tas2562_priv *tas_priv);
 
