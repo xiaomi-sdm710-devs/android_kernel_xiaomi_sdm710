@@ -43,9 +43,4 @@ obj-$(CONFIG_DOLBY_LICENSE) += msm-ds2-dap-config.o
 obj-$(CONFIG_DTS_SRS_TM) += msm-dts-srs-tm-config.o
 obj-$(CONFIG_QTI_PP) += msm-qti-pp-config.o
 
-ifeq ($(CONFIG_MACH_XIAOMI_PYXIS_OR_VELA), y)
-obj-$(CONFIG_SND_SOC_QDSP6V2) += tas2562-algo.o
-obj-$(CONFIG_SND_SOC_QDSP6V2) += tas2562-calib.o
-endif
-
 obj-y += codecs/
