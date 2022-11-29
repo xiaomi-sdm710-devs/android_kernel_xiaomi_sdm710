@@ -59,22 +59,22 @@ int afe_smartamp_algo_ctrl(u8 *user_data, uint32_t param_id,
 	return ret;
 }
 
-static int tas2562_dummy_get(struct snd_kcontrol *pKcontrol,
-				struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_dummy_get(struct snd_kcontrol *kcontrol,
+				struct snd_ctl_elem_value *ucontrol)
 {
 	int ret = 0;
 	int user_data = 0;
-	pUcontrol->value.integer.value[0] = 0;
+	ucontrol->value.integer.value[0] = 0;
 	pr_info("[SmartAmp:%s] write Only %d", __func__, user_data);
 	return ret;
 }
 
 /*Control-1: Set Speaker ID*/
-static int tas2562_set_spkid_left(struct snd_kcontrol *pKcontrol,
-				struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_set_spkid_left(struct snd_kcontrol *kcontrol,
+				struct snd_ctl_elem_value *ucontrol)
 {
 	int ret;
-	int user_data = pUcontrol->value.integer.value[0];
+	int user_data = ucontrol->value.integer.value[0];
 	int param_id = 0;
 
 	spk_id = user_data;
@@ -92,13 +92,13 @@ static int tas2562_set_spkid_left(struct snd_kcontrol *pKcontrol,
 	return 0;
 }
 
-static int tas2562_get_spkid_left(struct snd_kcontrol *pKcontrol,
-	struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_get_spkid_left(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
 {
 	int user_data = 0;
 
 	user_data = spk_id;
-	pUcontrol->value.integer.value[0] = user_data;
+	ucontrol->value.integer.value[0] = user_data;
 	pr_info("[SmartAmp:%s] Getting Speaker ID %d", __func__, user_data);
 
 	return 0;
@@ -110,11 +110,11 @@ static const struct soc_enum profile_index_enum[] = {
 	SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(profile_index_text), profile_index_text),
 };
 
-static int tas2562_set_profile(struct snd_kcontrol *pKcontrol,
-				struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_set_profile(struct snd_kcontrol *kcontrol,
+				struct snd_ctl_elem_value *ucontrol)
 {
 	int ret;
-	int user_data = pUcontrol->value.integer.value[0];
+	int user_data = ucontrol->value.integer.value[0];
 	int param_id = 0;
 
 	//To exclude None
@@ -139,8 +139,8 @@ static int tas2562_set_profile(struct snd_kcontrol *pKcontrol,
 	return 0;
 }
 
-static int tas2562_get_profile(struct snd_kcontrol *pKcontrol,
-				struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_get_profile(struct snd_kcontrol *kcontrol,
+				struct snd_ctl_elem_value *ucontrol)
 {
 	int ret;
 	int user_data = 0;
@@ -159,7 +159,7 @@ static int tas2562_get_profile(struct snd_kcontrol *pKcontrol,
 		else
 			user_data += 1;
 	}
-	pUcontrol->value.integer.value[0] = user_data;
+	ucontrol->value.integer.value[0] = user_data;
 	if((user_data >= 0) && (user_data < PROFILE_COUNT)) {
 		pr_info("[SmartAmp:%s] getting profile %s", __func__, profile_index_text[user_data]);
 	} else {
@@ -170,11 +170,11 @@ static int tas2562_get_profile(struct snd_kcontrol *pKcontrol,
 }
 
 /*Control-3: Set Calibration Temperature*/
-static int tas2562_set_tcal_left(struct snd_kcontrol *pKcontrol,
-				struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_set_tcal_left(struct snd_kcontrol *kcontrol,
+				struct snd_ctl_elem_value *ucontrol)
 {
 	int ret;
-	int user_data = pUcontrol->value.integer.value[0];
+	int user_data = ucontrol->value.integer.value[0];
 	int param_id = 0;
 
 	calib_re = user_data;
@@ -192,8 +192,8 @@ static int tas2562_set_tcal_left(struct snd_kcontrol *pKcontrol,
 	return 0;
 }
 
-static int tas2562_get_tcal_left(struct snd_kcontrol *pKcontrol,
-	struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_get_tcal_left(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
 {
 	int ret;
 	int user_data = 0;
@@ -210,18 +210,18 @@ static int tas2562_get_tcal_left(struct snd_kcontrol *pKcontrol,
 			return -1;
 		}
 	}
-	pUcontrol->value.integer.value[0] = user_data;
+	ucontrol->value.integer.value[0] = user_data;
 	pr_info("[SmartAmp:%s] Getting Tcal %d", __func__, user_data);
 
 	return 0;
 }
 
 /*Control-4: Set Calibrated Rdc*/
-static int tas2562_set_Re_left(struct snd_kcontrol *pKcontrol,
-				struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_set_Re_left(struct snd_kcontrol *kcontrol,
+				struct snd_ctl_elem_value *ucontrol)
 {
 	int ret;
-	int user_data = pUcontrol->value.integer.value[0];
+	int user_data = ucontrol->value.integer.value[0];
 	int param_id = 0;
 
 	calib_re = user_data;
@@ -252,12 +252,12 @@ static const struct soc_enum tas2562_calib_test_enum[] = {
 	SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(tas2562_calib_test_text), tas2562_calib_test_text),
 };
 
-static int tas2562_calib_test_set_left(struct snd_kcontrol *pKcontrol,
-	struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_calib_test_set_left(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
 {
 	int ret = 0;
 	int param_id = 0;
-	int user_data = pUcontrol->value.integer.value[0];
+	int user_data = ucontrol->value.integer.value[0];
 	int data = 1;
 
 	calib_state = user_data;
@@ -300,18 +300,18 @@ static int tas2562_calib_test_set_left(struct snd_kcontrol *pKcontrol,
 	return ret;
 }
 
-static int tas2562_calib_test_get_left(struct snd_kcontrol *pKcontrol,
-	struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_calib_test_get_left(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
 {
 	int ret = 0;
-	pUcontrol->value.integer.value[0] = calib_state;
+	ucontrol->value.integer.value[0] = calib_state;
 	pr_info("[SmartAmp:%s] case %s", __func__, tas2562_calib_test_text[calib_state]);
 	return ret;
 }
 
 /*Control-6: Get Re*/
-static int tas2562_get_re_left(struct snd_kcontrol *pKcontrol,
-	struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_get_re_left(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
 {
 	int ret;
 	int user_data = 0;
@@ -329,15 +329,15 @@ static int tas2562_get_re_left(struct snd_kcontrol *pKcontrol,
 		}
 	}
 
-	pUcontrol->value.integer.value[0] = user_data;
+	ucontrol->value.integer.value[0] = user_data;
 	pr_info("[SmartAmp:%s] Getting Re %d", __func__, user_data);
 
 	return 0;
 }
 
 /*Control-7: Get F0*/
-static int tas2562_get_f0_left(struct snd_kcontrol *pKcontrol,
-	struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_get_f0_left(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
 {
 	int ret;
 	int user_data = 0;
@@ -354,15 +354,15 @@ static int tas2562_get_f0_left(struct snd_kcontrol *pKcontrol,
 			return -1;
 		}
 	}
-	pUcontrol->value.integer.value[0] = user_data;
+	ucontrol->value.integer.value[0] = user_data;
 	pr_info("[SmartAmp:%s] Getting F0 %d", __func__, user_data);
 
 	return 0;
 }
 
 /*Control-8: Get Q*/
-static int tas2562_get_q_left(struct snd_kcontrol *pKcontrol,
-	struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_get_q_left(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
 {
 	int ret;
 	int user_data = 0;
@@ -379,15 +379,15 @@ static int tas2562_get_q_left(struct snd_kcontrol *pKcontrol,
 			return -1;
 		}
 	}
-	pUcontrol->value.integer.value[0] = user_data;
+	ucontrol->value.integer.value[0] = user_data;
 	pr_info("[SmartAmp:%s] Getting q %d", __func__, user_data);
 
 	return 0;
 }
 
 /*Control-9: Get Tv*/
-static int tas2562_get_tv_left(struct snd_kcontrol *pKcontrol,
-	struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_get_tv_left(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
 {
 	int ret;
 	int user_data = 0;
@@ -404,7 +404,7 @@ static int tas2562_get_tv_left(struct snd_kcontrol *pKcontrol,
 			return -1;
 		}
 	}
-	pUcontrol->value.integer.value[0] = user_data;
+	ucontrol->value.integer.value[0] = user_data;
 	pr_info("[SmartAmp:%s] Getting Tv %d", __func__, user_data);
 
 	return 0;
@@ -419,12 +419,12 @@ static const char *tas2562_smartamp_enable_text[STATUS_COUNT] = {
 static const struct soc_enum tas2562_smartamp_enable_enum[] = {
 	SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(tas2562_smartamp_enable_text), tas2562_smartamp_enable_text),
 };
-static int tas2562_smartamp_enable_set(struct snd_kcontrol *pKcontrol,
-				struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_smartamp_enable_set(struct snd_kcontrol *kcontrol,
+				struct snd_ctl_elem_value *ucontrol)
 {
 	int ret = 0;
 	int param_id = 0;
-	int user_data = pUcontrol->value.integer.value[0];
+	int user_data = ucontrol->value.integer.value[0];
 
 	if((user_data >= 0) && (user_data < STATUS_COUNT)) {
 		pr_info("[SmartAmp:%s] case %s", __func__, tas2562_smartamp_enable_text[user_data]);
@@ -475,8 +475,8 @@ fail_cmd:
 	return ret;
 }
 
-static int tas2562_smartamp_enable_get(struct snd_kcontrol *pKcontrol,
-				struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_smartamp_enable_get(struct snd_kcontrol *kcontrol,
+				struct snd_ctl_elem_value *ucontrol)
 {
 	int ret = 0;
 	int user_data = smartamp_get_val(smartamp_enable);
@@ -486,7 +486,7 @@ static int tas2562_smartamp_enable_get(struct snd_kcontrol *pKcontrol,
 		pr_err("[SmartAmp:%s] Invalid value", __func__);
 		return -1;
 	}
-	pUcontrol->value.integer.value[0] = user_data;
+	ucontrol->value.integer.value[0] = user_data;
 	return ret;
 }
 
@@ -500,11 +500,11 @@ static const struct soc_enum tas2562_smartamp_bypass_enum[] = {
 	SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(tas2562_smartamp_bypass_text), tas2562_smartamp_bypass_text),
 };
 
-static int tas2562_smartamp_bypass_set(struct snd_kcontrol *pKcontrol,
-				struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_smartamp_bypass_set(struct snd_kcontrol *kcontrol,
+				struct snd_ctl_elem_value *ucontrol)
 {
 	int ret = 0;
-	int user_data = pUcontrol->value.integer.value[0];
+	int user_data = ucontrol->value.integer.value[0];
 	if((user_data >= 0) && (user_data < STATUS_COUNT)) {
 		pr_info("[SmartAmp:%s] case %s", __func__, tas2562_smartamp_bypass_text[user_data]);
 	} else {
@@ -520,12 +520,12 @@ static int tas2562_smartamp_bypass_set(struct snd_kcontrol *pKcontrol,
 	return ret;
 }
 
-static int tas2562_smartamp_bypass_get(struct snd_kcontrol *pKcontrol,
-				struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_smartamp_bypass_get(struct snd_kcontrol *kcontrol,
+				struct snd_ctl_elem_value *ucontrol)
 {
 	int ret = 0;
 	int user_data = smartamp_get_val(smartamp_bypass);
-	pUcontrol->value.integer.value[0] = user_data;
+	ucontrol->value.integer.value[0] = user_data;
 	if((user_data >= 0) && (user_data < STATUS_COUNT)) {
 		pr_info("[SmartAmp:%s] case %s", __func__, tas2562_smartamp_bypass_text[user_data]);
 	} else {
@@ -545,8 +545,8 @@ static const struct soc_enum tas2562_smartamp_status_enum[] = {
 	SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(tas2562_smartamp_status_text), tas2562_smartamp_status_text),
 };
 
-static int tas2562_get_smartamp_status(struct snd_kcontrol *pKcontrol,
-	struct snd_ctl_elem_value *pUcontrol)
+static int tas2562_get_smartamp_status(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
 {
 	int ret;
 	int user_data = 0;
@@ -588,7 +588,7 @@ static int tas2562_get_smartamp_status(struct snd_kcontrol *pKcontrol,
 		pr_info("[SmartAmp:%s] Tx Enable = %d", __func__, user_data);
 
 	data &= user_data;
-	pUcontrol->value.integer.value[0] = data;
+	ucontrol->value.integer.value[0] = data;
 
 	if((data >= 0) && (data < STATUS_COUNT)) {
 		pr_info("[SmartAmp:%s] case %s", __func__, tas2562_smartamp_status_text[data]);

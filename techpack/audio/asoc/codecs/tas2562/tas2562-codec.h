@@ -24,8 +24,8 @@
 
 #include "tas2562.h"
 
-int tas2562_register_codec(struct tas2562_priv *pTAS2562);
-int tas2562_deregister_codec(struct tas2562_priv *pTAS2562);
-int tas2562_LoadConfig(struct tas2562_priv *pTAS2562);
+int tas2562_register_codec(struct tas2562_priv *tas_priv);
+int tas2562_deregister_codec(struct tas2562_priv *tas_priv);
+int tas2562_load_config(struct tas2562_priv *tas_priv);
 
 #endif /* _TAS2562_CODEC_H */
