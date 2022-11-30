@@ -802,7 +802,8 @@ int afe_q6_interface_prepare(void)
 /*
  * afe_apr_send_pkt : returns 0 on success, negative otherwise.
  */
-static int afe_apr_send_pkt(void *data, wait_queue_head_t *wait)
+static int afe_apr_send_pkt_timeout(void *data, wait_queue_head_t *wait,
+				    unsigned int msecs)
 {
 	int ret;
 
@@ -814,7 +815,7 @@ static int afe_apr_send_pkt(void *data, wait_queue_head_t *wait)
 		if (wait) {
 			ret = wait_event_timeout(*wait,
 					(atomic_read(&this_afe.state) == 0),
-					msecs_to_jiffies(TIMEOUT_MS));
+					msecs_to_jiffies(msecs));
 			if (!ret) {
 				ret = -ETIMEDOUT;
 			} else if (atomic_read(&this_afe.status) > 0) {
@@ -837,6 +838,11 @@ static int afe_apr_send_pkt(void *data, wait_queue_head_t *wait)
 
 	pr_debug("%s: leave %d\n", __func__, ret);
 	return ret;
+}
+
+static inline int afe_apr_send_pkt(void *data, wait_queue_head_t *wait)
+{
+	return afe_apr_send_pkt_timeout(data, wait, TIMEOUT_MS);
 }
 
 int afe_apr_send_pkt_crus(void *data, int index, int set)
