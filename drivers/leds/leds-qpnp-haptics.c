@@ -28,7 +28,6 @@
 #include <linux/slab.h>
 #include <linux/qpnp/qpnp-misc.h>
 #include <linux/qpnp/qpnp-revid.h>
-#include <soc/qcom/socinfo.h>
 
 /* Register definitions */
 #define HAP_STATUS_1_REG(chip)		(chip->base + 0x0A)
@@ -516,7 +515,7 @@ static int qpnp_haptics_auto_res_enable(struct hap_chip *chip, bool enable)
 
 	if (auto_res_mode_qwd && enable)
 		usleep_range(delay_us, delay_us + 1);
-	if (get_hw_version_platform()== HARDWARE_PLATFORM_GRUS){
+	if (IS_ENABLED(CONFIG_MACH_XIAOMI_GRUS)) {
 		pr_debug("hardcode val=0 upon Qualcomm change solution in HARDWARE_PLATFORM_GRUS;\n");
 		enableval = 0;
 	}
