@@ -394,7 +394,8 @@ void afe_set_routing_callback(routing_cb cb);
 int afe_get_av_dev_drift(struct afe_param_id_dev_timing_stats *timing_stats,
 		u16 port);
 
-#ifdef CONFIG_MSM_CSPL
+#if IS_ENABLED(CONFIG_MSM_CSPL)
 int afe_apr_send_pkt_crus(void *data, int index, int set);
 #endif
+
 #endif /* __Q6AFE_V2_H__ */

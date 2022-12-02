@@ -24,12 +24,10 @@
 #include <dsp/q6afe-v2.h>
 #include <dsp/q6audio-v2.h>
 #include <dsp/apr_elliptic.h>
+#include <dsp/msm-cirrus-playback.h>
 #include <ipc/apr_tal.h>
 #include "adsp_err.h"
 
-#ifdef CONFIG_MSM_CSPL
-#include <dsp/msm-cirrus-playback.h>
-#endif
 #if IS_ENABLED(CONFIG_MACH_XIAOMI_PYXIS_OR_VELA)
 #include <dsp/smart_amp.h>
 #endif
@@ -363,10 +361,6 @@ static int32_t afe_callback(struct apr_client_data *data, void *priv)
 	afe_callback_debug_print(data);
 	if (data->opcode == AFE_PORT_CMDRSP_GET_PARAM_V2) {
 		uint32_t *payload = data->payload;
-#ifdef CONFIG_MSM_CSPL
-		if (crus_afe_callback(data->payload, data->payload_size) == 0)
-			return 0;
-#endif
 
 		if (!payload || (data->token >= AFE_MAX_PORTS)) {
 			pr_err("%s: Error: size %d payload %pK token %d\n",
@@ -374,6 +368,9 @@ static int32_t afe_callback(struct apr_client_data *data, void *priv)
 				payload, data->token);
 			return -EINVAL;
 		}
+
+		if (crus_afe_callback(data->payload, data->payload_size) == 0)
+			return 0;
 
 		if (rtac_make_afe_callback(data->payload,
 					   data->payload_size))
@@ -831,7 +828,6 @@ static int afe_apr_send_pkt(void *data, wait_queue_head_t *wait)
 	return ret;
 }
 
-#ifdef CONFIG_MSM_CSPL
 int afe_apr_send_pkt_crus(void *data, int index, int set)
 {
 	if (set)
@@ -839,9 +835,7 @@ int afe_apr_send_pkt_crus(void *data, int index, int set)
 	else /* get */
 		return afe_apr_send_pkt(data, 0);
 }
-
 EXPORT_SYMBOL(afe_apr_send_pkt_crus);
-#endif
 
 static int afe_send_cal_block(u16 port_id, struct cal_block_data *cal_block)
 {

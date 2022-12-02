@@ -15,7 +15,6 @@ obj-$(CONFIG_MSM_QDSP6V2_CODECS)  += codecs/
 ifeq ($(CONFIG_MACH_XIAOMI_SDM710), y)
 obj-$(CONFIG_SND_SOC_MSM_QDSP6V2_INTF) += elliptic/ apr_elliptic.o
 
-ifdef CONFIG_MSM_CSPL
-obj-$(CONFIG_SND_SOC_MSM_QDSP6V2_INTF) += msm-cirrus-playback.o
-endif
+obj-$(CONFIG_MSM_CSPL) += msm-cirrus-playback.o
+
 endif
