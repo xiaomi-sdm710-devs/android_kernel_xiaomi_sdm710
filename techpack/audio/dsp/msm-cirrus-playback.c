@@ -256,6 +256,48 @@ static int crus_afe_set_param(int port, int module,
 	return ret;
 }
 
+static int crus_adm_set_params(int port_id, int copp_idx, uint32_t module_id,
+			       uint32_t param_id, char *params,
+			       uint32_t params_length)
+{
+	uint32_t param_size = params_length + sizeof(struct adm_param_data_v5);
+	uint32_t *update_param_data;
+	char *param_data;
+	int ret;
+
+	param_data = kzalloc(param_size, GFP_KERNEL);
+	if (!param_data)
+		return -ENOMEM;
+
+	update_param_data = (uint32_t *)param_data;
+	*update_param_data++ = module_id;
+	*update_param_data++ = param_id;
+	*update_param_data++ = params_length;
+	memcpy(param_data + sizeof(struct adm_param_data_v5), params,
+	       params_length);
+
+	ret = adm_send_params_v5(port_id, copp_idx, param_data, param_size);
+	if (ret) {
+		pr_err("%s: Setting param failed with err=%d\n",
+		       __func__, ret);
+		ret = -EINVAL;
+		goto exit;
+	}
+
+exit:
+	kfree(param_data);
+
+	return ret;
+}
+
+static int crus_adm_get_params(int port_id, int copp_idx, uint32_t module_id,
+			       uint32_t param_id, char *params,
+			       uint32_t params_length, uint32_t client_id)
+{
+	return adm_get_params(port_id, copp_idx,
+			      module_id, param_id, params_length, params);
+}
+
 static int crus_get_param(int port, int module, int param,
 				void *data, int length)
 {
