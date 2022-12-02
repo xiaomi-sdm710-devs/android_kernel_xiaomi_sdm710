@@ -25,12 +25,10 @@
 #include <dsp/q6audio-v2.h>
 #include <dsp/apr_elliptic.h>
 #include <dsp/msm-cirrus-playback.h>
+#include <dsp/smart_amp.h>
 #include <ipc/apr_tal.h>
 #include "adsp_err.h"
 
-#if IS_ENABLED(CONFIG_MACH_XIAOMI_PYXIS_OR_VELA)
-#include <dsp/smart_amp.h>
-#endif
 #define WAKELOCK_TIMEOUT	5000
 enum {
 	AFE_COMMON_RX_CAL = 0,
@@ -127,9 +125,7 @@ struct afe_ctl {
 	int set_custom_topology;
 	int dev_acdb_id[AFE_MAX_PORTS];
 	routing_cb rt_cb;
-#if IS_ENABLED(CONFIG_MACH_XIAOMI_PYXIS_OR_VELA)
 	struct afe_smartamp_calib_get_resp smart_amp_calib_data;
-#endif
 };
 
 static atomic_t afe_ports_mad_type[SLIMBUS_PORT_LAST - SLIMBUS_0_RX];
@@ -229,6 +225,25 @@ static void av_dev_drift_afe_cb_handler(uint32_t *payload,
 			atomic_set(&this_afe.state, -1);
 		}
 	}
+}
+
+static int smartamp_make_afe_callback(void *payload, uint32_t payload_size)
+{
+	struct afe_smartamp_calib_get_resp *resp = payload;
+
+	switch (resp->pdata.module_id) {
+	case AFE_SMARTAMP_MODULE_RX:
+	case AFE_SMARTAMP_MODULE_TX:
+		if (payload_size < sizeof(struct afe_smartamp_calib_get_resp))
+			return -EINVAL;
+
+		memcpy(&this_afe.smart_amp_calib_data, payload,
+		       sizeof(struct afe_smartamp_calib_get_resp));
+		atomic_set(&this_afe.state, 0);
+		break;
+	}
+
+	return 0;
 }
 
 static int32_t sp_make_afe_callback(uint32_t *payload, uint32_t payload_size)
@@ -386,14 +401,10 @@ static int32_t afe_callback(struct apr_client_data *data, void *priv)
 			av_dev_drift_afe_cb_handler(data->payload,
 						    data->payload_size);
 		} else {
-#if IS_ENABLED(CONFIG_MACH_XIAOMI_PYXIS_OR_VELA)
-			if ((payload[1] == AFE_SMARTAMP_MODULE_RX) ||
-				(payload[1] == AFE_SMARTAMP_MODULE_TX)) {
-                memcpy(&this_afe.smart_amp_calib_data, payload,
-                sizeof(this_afe.smart_amp_calib_data));
-				atomic_set(&this_afe.state, 0);
-			}
-#endif
+			if (smartamp_make_afe_callback(data->payload,
+						       data->payload_size))
+				return -EINVAL;
+
 			if (sp_make_afe_callback(data->payload,
 						 data->payload_size))
 				return -EINVAL;
@@ -4403,7 +4414,6 @@ int afe_start_pseudo_port(u16 port_id)
 	return ret;
 }
 
-#if IS_ENABLED(CONFIG_MACH_XIAOMI_PYXIS_OR_VELA)
 int afe_smartamp_set_calib_data(uint32_t param_id,
 		struct afe_smartamp_set_params_t *prot_config,
 	        uint8_t length, uint32_t module_id)
@@ -4481,7 +4491,6 @@ fail_cmd:
 	__func__, config->pdata.param_id, ret);
 	return ret;
 }
-
 EXPORT_SYMBOL(afe_smartamp_set_calib_data);
 
 int afe_smartamp_get_calib_data(struct afe_smartamp_get_calib *calib_resp,
@@ -4561,9 +4570,7 @@ int afe_smartamp_get_calib_data(struct afe_smartamp_get_calib *calib_resp,
 fail_cmd:
 	return ret;
 }
-
 EXPORT_SYMBOL(afe_smartamp_get_calib_data);
-#endif
 
 int afe_pseudo_port_stop_nowait(u16 port_id)
 {
