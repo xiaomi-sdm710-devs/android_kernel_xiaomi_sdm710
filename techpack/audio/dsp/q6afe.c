@@ -4424,14 +4424,11 @@ int afe_smartamp_set_calib_data(uint32_t param_id,
 		struct afe_smartamp_set_params_t *prot_config,
 	        uint8_t length, uint32_t module_id)
 {
+	struct afe_smartamp_config_command config;
+	int index , port_id;
 	int ret = -EINVAL;
-	int index = 0 , port_id = 0;
-	struct afe_smartamp_config_command configV;
-	struct afe_smartamp_config_command *config;
 
-
-	config = &configV;
-	memset(config, 0 , sizeof(struct afe_smartamp_config_command));
+	memset(&config, 0 , sizeof(struct afe_smartamp_config_command));
 	if (!prot_config) {
 		pr_err("[Smartamp:%s] Invalid params\n", __func__);
 		goto fail_cmd;
@@ -4452,49 +4449,39 @@ int afe_smartamp_set_calib_data(uint32_t param_id,
 	}
 
 	index = q6audio_get_port_index(port_id);
-	config->pdata.module_id = module_id;
-	config->hdr.hdr_field = APR_HDR_FIELD(APR_MSG_TYPE_SEQ_CMD,
-				APR_HDR_LEN(APR_HDR_SIZE), APR_PKT_VER);
-	config->hdr.pkt_size = sizeof(struct afe_smartamp_config_command);
-	config->hdr.src_port = 0;
-	config->hdr.dest_port = 0;
-	config->hdr.token = index;
-	config->hdr.opcode = AFE_PORT_CMD_SET_PARAM_V2;
-	config->param.port_id = q6audio_get_port_id(port_id);
-	//config->param.payload_size = length + 1;
-	config->param.payload_size =
-		sizeof(configV) - sizeof(configV.hdr) - sizeof(configV.param);
-	config->pdata.param_id = param_id;
-	config->pdata.param_size = sizeof(configV.prot_config);
-	memcpy(config->prot_config.payload, prot_config, length);
-	atomic_set(&this_afe.state, 1);
-	ret = apr_send_pkt(this_afe.apr, (uint32_t *) config);
+	config.pdata.module_id = module_id;
+	config.hdr.hdr_field = APR_HDR_FIELD(APR_MSG_TYPE_SEQ_CMD,
+					     APR_HDR_LEN(APR_HDR_SIZE),
+					     APR_PKT_VER);
+	config.hdr.pkt_size = sizeof(struct afe_smartamp_config_command);
+	config.hdr.src_port = 0;
+	config.hdr.dest_port = 0;
+	config.hdr.token = index;
+	config.hdr.opcode = AFE_PORT_CMD_SET_PARAM_V2;
+	config.param.port_id = q6audio_get_port_id(port_id);
+	config.param.payload_size =
+		sizeof(config) - sizeof(config.hdr) - sizeof(config.param);
+	config.pdata.param_id = param_id;
+	config.pdata.param_size = sizeof(config.prot_config);
+	memcpy(config.prot_config.payload, prot_config, length);
 
-
-	if (ret < 0) {
+	ret = afe_apr_send_pkt_timeout(&config, &this_afe.wait[index],
+				       TIMEOUT_MS * 10);
+	if (ret == -ETIMEDOUT) {
+		pr_err("[Smartamp:%s] wait_event timeout\n", __func__);
+		ret = -EINVAL;
+		goto fail_cmd;
+	} else if (ret < 0) {
 		pr_err("[Smartamp:%s] Setting param for port %d param[0x%x]failed\n",
 		       __func__, port_id, param_id);
 		goto fail_cmd;
 	}
 
-	ret = wait_event_timeout(this_afe.wait[index],
-			(atomic_read(&this_afe.state) == 0),
-			msecs_to_jiffies(TIMEOUT_MS*10));
-	if (!ret) {
-		pr_err("[Smartamp:%s] wait_event timeout\n", __func__);
-		ret = -EINVAL;
-		goto fail_cmd;
-	}
-	if (atomic_read(&this_afe.status) != 0) {
-		pr_err("[Smartamp:%s] config cmd failed\n", __func__);
-		ret = -EINVAL;
-		goto fail_cmd;
-	}
-        ret = 0;
 	return ret;
 fail_cmd:
 	pr_err("[Smartamp:%s] config->pdata.param_id %x status %d\n",
-	__func__, config->pdata.param_id, ret);
+	       __func__, config.pdata.param_id, ret);
+
 	return ret;
 }
 EXPORT_SYMBOL(afe_smartamp_set_calib_data);
@@ -4502,31 +4489,31 @@ EXPORT_SYMBOL(afe_smartamp_set_calib_data);
 int afe_smartamp_get_calib_data(struct afe_smartamp_get_calib *calib_resp,
 		uint32_t param_id, uint32_t module_id)
 {
-	int ret = -EINVAL;
-	int index = 0, port_id = 0;
+	int index, port_id, ret;
 
 	if (!calib_resp) {
 		pr_err("[Smartamp:%s] Invalid params\n", __func__);
-		goto fail_cmd;
+		return -EINVAL;
 	}
+
 	if (module_id == AFE_SMARTAMP_MODULE_RX) {
 		port_id = TAS_RX_PORT;
 	} else if (module_id == AFE_SMARTAMP_MODULE_TX) {
 		port_id = TAS_TX_PORT;
 	} else {
 		pr_err("[Smartamp:%s] Invalid module id\n", __func__);
-		return ret;
+		return -EINVAL;
 	}
 
 	if ((q6audio_validate_port(port_id) < 0)) {
 		pr_err("[Smartamp:%s] invalid port %d\n", __func__, port_id);
-		goto fail_cmd;
+		return -EINVAL;
 	}
 
 	index = q6audio_get_port_index(port_id);
-	calib_resp->hdr.hdr_field =
-		APR_HDR_FIELD(APR_MSG_TYPE_SEQ_CMD,
-		APR_HDR_LEN(APR_HDR_SIZE), APR_PKT_VER);
+	calib_resp->hdr.hdr_field = APR_HDR_FIELD(APR_MSG_TYPE_SEQ_CMD,
+						  APR_HDR_LEN(APR_HDR_SIZE),
+						  APR_PKT_VER);
 	calib_resp->hdr.src_svc = APR_SVC_AFE;
 	calib_resp->hdr.src_domain = APR_DOMAIN_APPS;
 	calib_resp->hdr.dest_svc = APR_SVC_AFE;
@@ -4548,32 +4535,18 @@ int afe_smartamp_get_calib_data(struct afe_smartamp_get_calib *calib_resp,
 	calib_resp->pdata.param_id = param_id;
 	calib_resp->pdata.param_size = sizeof(calib_resp->res_cfg);
 	calib_resp->pdata.reserved = 0;
-	atomic_set(&this_afe.state, 1);
-	ret = apr_send_pkt(this_afe.apr, (uint32_t *)calib_resp);
 
-	if (ret < 0) {
-		pr_err("[Smartamp:%s] get param port %d param id[0x%x]failed\n",
-			   __func__, port_id, calib_resp->get_param.param_id);
-		goto fail_cmd;
-	}
-
-	ret = wait_event_timeout(this_afe.wait[index],
-		(atomic_read(&this_afe.state) == 0),
-		msecs_to_jiffies(TIMEOUT_MS * 5));
-	if (!ret) {
+	ret = afe_apr_send_pkt_timeout(calib_resp, &this_afe.wait[index],
+				       TIMEOUT_MS * 5);
+	if (ret == -ETIMEDOUT) {
 		pr_err("[Smartamp:%s] wait_event timeout\n", __func__);
-		ret = -EINVAL;
-		goto fail_cmd;
+		return -EINVAL;
+	} else if (ret < 0) {
+		pr_err("[Smartamp:%s] get param port %d param id[0x%x]failed\n",
+		       __func__, port_id, calib_resp->get_param.param_id);
+		return ret;
 	}
-	if (atomic_read(&this_afe.status) != 0) {
-		pr_err("[Smartamp:%s] config cmd failed\n", __func__);
-		ret = -EINVAL;
-		goto fail_cmd;
-	}
-	memcpy(&calib_resp->res_cfg, &this_afe.smart_amp_calib_data.res_cfg,
-	       sizeof(this_afe.smart_amp_calib_data.res_cfg));
-        ret = 0;
-fail_cmd:
+
 	return ret;
 }
 EXPORT_SYMBOL(afe_smartamp_get_calib_data);
