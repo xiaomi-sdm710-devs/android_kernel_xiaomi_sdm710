@@ -101,7 +101,14 @@ struct elliptic_shared_data_block {
 struct elliptic_shared_data_block *elliptic_get_shared_obj(uint32_t
 	object_id);
 
-extern unsigned int elliptic_add_platform_controls(void *platform);
+#if IS_ENABLED(CONFIG_ELLIPTIC_US)
+unsigned int elliptic_add_platform_controls(void *platform);
+#else
+static inline unsigned int elliptic_add_platform_controls(void *)
+{
+	return 0;
+}
+#endif
 
 void elliptic_set_calibration_data(uint8_t *calib_data, size_t size);
 

@@ -15,6 +15,9 @@ config DTS_EAGLE
 config DTS_SRS_TM
 	tristate "DTS_SRS_TM"
 
+config ELLIPTIC_US
+	tristate "ELLIPTIC_US"
+
 config MSM_ADSP_LOADER
 	tristate "MSM_ADSP_LOADER"
 
