@@ -640,12 +640,6 @@ unsigned int mnErrCode;
 #ifdef CONFIG_TAS2562_CODEC
 struct mutex codec_lock;
 #endif
-
-#ifdef CONFIG_TAS2562_MISC
-int mnDBGCmd;
-int mnCurrentReg;
-struct mutex file_lock;
-#endif
 };
 
 #endif /* __TAS2562_ */

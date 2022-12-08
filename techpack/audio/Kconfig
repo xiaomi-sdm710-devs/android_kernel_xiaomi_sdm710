@@ -171,9 +171,6 @@ config TAS2557_REGMAP
 config TAS2562_CODEC
 	tristate "TAS2562_CODEC"
 
-config TAS2562_MISC
-	tristate "TAS2562_MISC"
-
 config TAS2562_REGMAP
 	tristate "TAS2562_REGMAP"
 

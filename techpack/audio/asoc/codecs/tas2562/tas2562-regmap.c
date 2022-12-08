@@ -38,7 +38,6 @@
 
 #include "tas2562.h"
 #include "tas2562-codec.h"
-#include "tas2562-misc.h"
 
 static char pICN[] = {0x00, 0x03, 0x46, 0xdc};
 
@@ -795,17 +794,6 @@ static int tas2562_i2c_probe(struct i2c_client *pClient,
 		goto err;
 	}
 #endif
-
-#ifdef CONFIG_TAS2562_MISC
-	mutex_init(&pTAS2562->file_lock);
-	nResult = tas2562_register_misc(pTAS2562);
-	if (nResult < 0) {
-		dev_err(pTAS2562->dev,
-			"register codec failed, %d\n", nResult);
-		goto err;
-	}
-#endif
-
 err:
 	return nResult;
 }
@@ -819,11 +807,6 @@ static int tas2562_i2c_remove(struct i2c_client *pClient)
 #ifdef CONFIG_TAS2562_CODEC
 	tas2562_deregister_codec(pTAS2562);
 	mutex_destroy(&pTAS2562->codec_lock);
-#endif
-
-#ifdef CONFIG_TAS2562_MISC
-	tas2562_deregister_misc(pTAS2562);
-	mutex_destroy(&pTAS2562->file_lock);
 #endif
 
 	if (gpio_is_valid(pTAS2562->mnResetGPIO))
